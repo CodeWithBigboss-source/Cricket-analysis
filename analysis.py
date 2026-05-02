@@ -1,5 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
 
 data = pd.read_csv("matches.csv")
 deliveries = pd.read_csv("deliveries.csv")
@@ -78,3 +80,28 @@ print(top_winning_batsmen.head(10))
 
 impact_players = merged["player_of_match"].value_counts().head(10)
 print(impact_players)
+
+print("\n=== MACHINE LEARNING SECTION ===\n")
+
+ml_data = data[["team1", "team2", "toss_winner", "toss_decision", "venue", "winner"]].dropna()
+
+# le = LabelEncoder()
+
+# for col in ml_data.columns:
+#     ml_data[col] = le.fit_transform(ml_data[col])
+
+X = ml_data.drop("winner", axis=1)
+y = ml_data["winner"]
+X = pd.get_dummies(X)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
+
+accuracy = model.score(X_test, y_test)
+print("Model Accuracy:", accuracy)
+print("Accuracy:", model.score(X_test, y_test))
+
+sample = X_test.iloc[0].values.reshape(1, -1)
+print("Predicted winner:", model.predict(sample))
